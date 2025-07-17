@@ -1,0 +1,50 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Node (Next.js frontend) - formly-FrontEnd
+formly-FrontEnd/node_modules/
+formly-FrontEnd/.next/
+formly-FrontEnd/.env.local
+formly-FrontEnd/.env*
+formly-FrontEnd/out/
+formly-FrontEnd/.turbo/
+formly-FrontEnd/dist/
+
+# Yarn/PNPM log files
+formly-FrontEnd/yarn.lock
+formly-FrontEnd/pnpm-lock.yaml
+formly-FrontEnd/npm-debug.log*
+
+# Spring Boot backend - Formly
+Formly/target/
+Formly/.classpath
+Formly/.project
+Formly/.settings/
+Formly/.env
+Formly/*.iml
+Formly/.idea/
+Formly/.vscode/
+Formly/logs/
+Formly/.mvn/
+Formly/mvnw
+Formly/mvnw.cmd
+
+# OS-generated files
+*.log
+*.swp
+*.bak
+*.tmp
+*.pid
+
+# Ignore IntelliJ IDEA and VSCode global files
+.idea/
+.vscode/
+
+# Optional: ignore test coverage
+**/coverage/
+**/build/
+
+Formly/Formly/src/main/resources/*.properties
+Formly/Formly/src/main/resources/*.yml
+Formly/Formly/src/main/resources/application.properties
