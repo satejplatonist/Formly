@@ -48,3 +48,4 @@ Formly/mvnw.cmd
 Formly/Formly/src/main/resources/*.properties
 Formly/Formly/src/main/resources/*.yml
 Formly/Formly/src/main/resources/application.properties
+Formly/Formly/target/classes/application.properties
