@@ -20,7 +20,10 @@ export async function GET(req: NextRequest, res: NextResponse)
     const userId = session.user.id;
 
     try {
-        const result = await db.select({name:forms.formName}).from(forms).where(eq(forms.userId,userId))
+        const result = await db.select({
+                                    name:forms.formName,
+                                    formId: forms.formId
+                                }).from(forms).where(eq(forms.userId,userId))
         return NextResponse.json({
             formName: result
         });
