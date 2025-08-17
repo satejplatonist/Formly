@@ -1,7 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Ellipsis, Link, PencilLine, Plus, Trash2 } from "lucide-react";
+import { Ellipsis, Link as LinkIcon, PencilLine, Plus, Trash2 } from "lucide-react";
 import CreateForm from "../../Forms/CreateForm";
 import { Suspense, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import Link from "next/link";
 
 function FormsListSkeleton() {
   return (
@@ -145,8 +146,12 @@ export default function Home()
                                     />
                                 )}
                                 <div className="flex flex-row items-center justify-evenly gap-x-1">
-                                    <Button variant={"ghost"}><PencilLine />Edit</Button>
-                                    <Button variant={"ghost"}><Link /></Button>
+                                    <Link href={`/Components/DashBoard/Edit/${form.formId}`}>
+                                        <Button variant={"ghost"}>
+                                            <PencilLine />Edit
+                                        </Button>
+                                    </Link>
+                                    <Button variant={"ghost"}><LinkIcon /></Button>
                                     <Button variant={"ghost"} onClick={()=>{
                                         deleteForm.mutate(form.formId)
                                     }}>
