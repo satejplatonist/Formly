@@ -1,5 +1,6 @@
 "use client"
 import { FieldType, FormFieldsResponse } from "@/app/utils/types";
+import FormFieldsRenderer from "@/components/helpers/FormFieldsRenderer";
 import { Button } from "@/components/ui/button";
 import { FormFieldMapping } from "@/db/schemas";
 import { cn } from "@/lib/utils";
@@ -78,7 +79,6 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
         }
     })
     const addColumn = useAddColumn();
-    const [columns, setColumns] = useState<number[]>([])
 
     function getMaxColumnId() {
         if (!data || data.formFields.length === 0) return 1;
@@ -96,22 +96,21 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
 
     console.log(data);
     
+    
     return(
-        <main className={cn('min-h-screen w-full m-auto flex-row flex items-center px-4 lg:px-12 overflow-y-auto overflow-x-hidden')}>
-            {/* <EmailElement/> */}
-            {
-                columns.map((elm)=>(
-                    <div key={elm} className="mr-2">
-                        elm
-                    </div>
-                ))
-            }
-            <Button onClick={()=>{addColumn.mutate({
-                fieldType: "SHORT_ANSWER",
-                columnId: getMaxColumnId(),
-                sequenceNum: 1,
-                data: {}
-            })}}>Add Column</Button>
+        <main className={cn('min-h-screen w-full justify-center gap-y-8 flex flex-col items-center px-4 lg:px-12',
+        'overflow-x-auto bg-slate-50')}>
+            <div className="overflow-x-auto pb-4 w-full">
+                <FormFieldsRenderer formFields={data?.formFields ?? []} />
+            </div>
+            <div className="flex justify-between items-center">
+                <Button onClick={()=>{addColumn.mutate({
+                    fieldType: "SHORT_ANSWER",
+                    columnId: getMaxColumnId(),
+                    sequenceNum: 1,
+                    data: {}
+                })}}>Add Column</Button>
+            </div>
         </main>
     );    
 }

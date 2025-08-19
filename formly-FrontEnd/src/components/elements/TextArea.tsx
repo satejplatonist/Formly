@@ -1,18 +1,25 @@
-import { GripVertical, Plus, Trash2 } from "lucide-react";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
+import { GripVertical, Plus, Trash2 } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import ElementSelectorForm from "@/app/Components/FormOpener/FormOpener"
 
 export function TextAreaElement() {
-    return(
-        <div className="bg-blue-500 flex flex-row items-center justify-center p-1 m-1 w-full lg:w-4/12 gap-x-2 group">
-            <div className="flex flex-row items-center justify-evenly self-start opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <Button variant={"ghost"} size={"icon"} aria-label="Delete"><Trash2/></Button>
-                <Button variant={"ghost"} size={"icon"} aria-label="Add element below"><Plus/></Button>
-                <Button variant={"ghost"} size={"icon"} aria-label="Move"><GripVertical/></Button>
-            </div>
-            <Textarea className="h-32 w-full"></Textarea>
-        </div>
-    );
+  return (
+    <div className="flex flex-row items-center justify-center py-1 w-full gap-x-2 group">
+      <div className="flex flex-row items-center justify-evenly opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <Button variant={"ghost"} size={"icon"} aria-label="Delete">
+          <Trash2 />
+        </Button>
+        <ElementSelectorForm/>
+        <Button variant={"ghost"} size={"icon"} aria-label="Move">
+          <GripVertical />
+        </Button>
+      </div>
+      <Textarea
+        className="w-full border-2 border-zinc-300 min-h-[100px]"
+        placeholder="Enter your detailed answer..."
+        rows={4}
+      />
+    </div>
+  )
 }
-

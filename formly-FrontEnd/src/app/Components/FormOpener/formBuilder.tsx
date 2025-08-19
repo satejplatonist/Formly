@@ -40,7 +40,7 @@ const RenderPreview = ({selectedType}:RenderPreviewProps) =>{
     if(!selectedType)
     {
         return(
-            <div className="flex flex-col items-center justify-center gap-y-2 ">
+            <div className="flex flex-col items-center justify-center gap-y-2 w-full h-full">
                 <CirclePlus size={40} className="bg-zinc-500 text-white rounded-full" /> 
                 <h2 className="text-zinc-700 text-md font-bold">Insert Anything</h2>           
             </div>
