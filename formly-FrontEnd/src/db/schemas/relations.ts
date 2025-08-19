@@ -1,7 +1,6 @@
 import { relations } from "drizzle-orm"
 import { user } from "./users"
 import { forms } from "./forms"
-import { formFields } from "./form-fields"
 import { formFieldMappings } from "./form-field-mappings"
 import { account } from "./Account"
 import { session } from "./sessions"
@@ -22,11 +21,6 @@ export const formsRelations = relations(forms, ({ one, many }) => ({
   fieldMappings: many(formFieldMappings),
 }))
 
-// Form Fields relations
-export const formFieldsRelations = relations(formFields, ({ many }) => ({
-  formMappings: many(formFieldMappings),
-}))
-
 // Form Field Mappings relations
 export const formFieldMappingsRelations = relations(formFieldMappings, ({ one }) => ({
   user: one(user, {
@@ -36,11 +30,7 @@ export const formFieldMappingsRelations = relations(formFieldMappings, ({ one })
   form: one(forms, {
     fields: [formFieldMappings.formId],
     references: [forms.formId],
-  }),
-  field: one(formFields, {
-    fields: [formFieldMappings.fieldId],
-    references: [formFields.formFieldId],
-  }),
+  })
 }))
 
 // Accounts relations

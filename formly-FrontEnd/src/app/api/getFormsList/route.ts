@@ -29,6 +29,9 @@ export async function GET(req: NextRequest, res: NextResponse)
         });
     } catch (error) {
         console.error(` error is getting forms ${error}`);
-        return NextResponse.json({ error: "Failed to get forms" }, { status: 500 });
+        return NextResponse.json({ 
+            error: "Failed to get forms", 
+            status: 500 
+        });
     }
 }

@@ -8,3 +8,25 @@ export type Session = {
     ipAddress?: string | null | undefined;
     userAgent?: string | null | undefined;
 } | undefined
+
+export type FieldType =
+  | "SHORT_ANSWER"
+  | "LONG_ANSWER"
+  | "MULTIPLE_CHOICE"
+  | "CHECKBOXES"
+  | "DROPDOWN"
+  | "MULTI_SELECT"
+  | "NUMBER"
+  | "EMAIL"
+  | "PHONE_NUMBER"
+  | "LINK"
+  | "FILE_UPLOAD"
+  | "DATE"
+  | "TIME"
+  | "LINEAR_SCALE"
+  | "MATRIX"
+  | "RATING"
+  | "PAYMENT"
+  | "SIGNATURE"
+  | "RANKING"
+  | "WALLET_CONNECT";

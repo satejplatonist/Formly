@@ -9,13 +9,8 @@ import { NumberElement } from "@/components/elements/Number";
 
 const FormsList = () =>{
     return(
-        <main className="w-full min-h-full bg-red-400 p-4">
-            <InputElement/>
-            <TextAreaElement/>
-            <TimerElement/>
-            <EmailElement/>
-            <PhoneElement/>
-            <NumberElement/>
+        <main className="w-full min-h-full p-4">
+            
         </main>
     )
 }
