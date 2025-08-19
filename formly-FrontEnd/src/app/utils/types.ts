@@ -1,3 +1,5 @@
+import { FormFieldMapping } from "@/db/schemas";
+
 export type Session = {
     id: string;
     userId: string;
@@ -30,3 +32,21 @@ export type FieldType =
   | "SIGNATURE"
   | "RANKING"
   | "WALLET_CONNECT";
+
+
+export type FormField<T = any> = {
+  formFieldMapId: number;
+  userId: string;
+  formId: number;
+  fieldType:FieldType
+  columnId: number;
+  sequenceNumber: number;
+  data: T;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
+export type FormFieldsResponse = {
+  formFields: FormFieldMapping[];
+  status: number;
+};
