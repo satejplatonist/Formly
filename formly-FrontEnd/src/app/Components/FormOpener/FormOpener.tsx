@@ -11,8 +11,9 @@ import {
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FormBuilder from "./formBuilder";
+import { FormFieldRendererProps } from "@/app/utils/types";
 
-export default function ElementSelectorForm() 
+export default function ElementSelectorForm({formField, form_id}:FormFieldRendererProps) 
 {
     return(
         <Dialog>
@@ -29,7 +30,7 @@ export default function ElementSelectorForm()
                     <DialogTitle className="px-2 h-full">Element Selector</DialogTitle>
                 </DialogHeader>
                 <div className="flex-1 w-full rounded-sm overflow-hidden">
-                    <FormBuilder/>
+                    <FormBuilder formField={formField} form_id={form_id}/>
                 </div>
             </DialogContent>
         </Dialog>

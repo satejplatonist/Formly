@@ -1,4 +1,5 @@
 import { FormFieldMapping } from "@/db/schemas";
+import React from "react";
 
 export type Session = {
     id: string;
@@ -50,3 +51,12 @@ export type FormFieldsResponse = {
   formFields: FormFieldMapping[];
   status: number;
 };
+
+export interface FormFieldRendererProps {
+  formField: FormFieldMapping,
+  form_id: string
+}
+
+export interface ElementProps extends FormFieldRendererProps{
+   dragHandle: React.ReactNode
+}

@@ -1,6 +1,7 @@
 import { auth } from "@/app/utils/auth";
-import { formFieldMappings } from "@/db/schemas";
+import { and, eq, formFieldMappings } from "@/db/schemas";
 import { db } from "@/index";
+import { gte, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -41,6 +42,14 @@ export async function PATCH(req:NextRequest, res: NextResponse) {
     }
 
     try {
+
+        await db.update(formFieldMappings)
+            .set({ sequenceNumber: sql`${formFieldMappings.sequenceNumber} + 1` })
+            .where(and(
+                eq(formFieldMappings.formId, formId),
+                gte(formFieldMappings.sequenceNumber, sequenceNum)
+            ));
+
         const response = await db.insert(formFieldMappings)
                                  .values({
                                     userId: userId,

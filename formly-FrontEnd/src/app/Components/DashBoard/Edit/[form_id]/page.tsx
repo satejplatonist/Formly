@@ -1,12 +1,16 @@
 "use client"
-import { FieldType, FormFieldsResponse } from "@/app/utils/types";
+import { FormFieldsResponse } from "@/app/utils/types";
 import FormFieldsRenderer from "@/components/helpers/FormFieldsRenderer";
 import { Button } from "@/components/ui/button";
-import { FormFieldMapping } from "@/db/schemas";
+import { useAddField } from "@/hooks/use-add-field";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
+import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, MouseSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { FormFieldMapping } from "@/db/schemas";
+import { arrayMove } from "@dnd-kit/sortable";
+import FieldRenderer from "@/components/helpers/FieldRenderer";
 
 type FormEditParams = {
     form_id:string
@@ -18,7 +22,12 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
     const router = useRouter();
     const resolvedParams = use(params);
     const form_id = resolvedParams.form_id;
+
     const queryClient = useQueryClient();
+
+    const addColumn = useAddField(form_id);
+
+    const [active, setActive] = useState<FormFieldMapping | null>(null);
 
     useEffect(() => {
         const checkForm = async () => {
@@ -38,32 +47,6 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
         checkForm();
     }, [form_id]);
 
-    function useAddColumn() 
-    {
-        return useMutation({
-            mutationKey:['add-column'],
-            mutationFn:async(addColumn:{fieldType:FieldType, columnId:number, sequenceNum:number, data:Record<string,any>})=>{
-                return await fetch(`/api/addField/?form-id=${form_id}`,{
-                    method: "PATCH",
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        fieldType: addColumn.fieldType,
-                        columnId: addColumn.columnId,
-                        sequenceNum: addColumn.sequenceNum,
-                        data: addColumn.data || {}
-                    })
-                }).then((res)=>res.json());
-            },
-            onSuccess: ()=>{
-                queryClient.invalidateQueries({queryKey:['form-fields']})
-            },
-            onError: (error)=>{
-                console.log(`Error deleting the form ${error}`)
-            },
-            retry: 2
-        })
-    }
-
     const {data, error, isLoading, } = useQuery<FormFieldsResponse>({
         queryKey: ['form-fields'],
         queryFn:async function getFormFields() {
@@ -78,7 +61,31 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
             return response.json();
         }
     })
-    const addColumn = useAddColumn();
+
+    const updatePositionMutation = useMutation({
+        mutationKey: ["field-pos-update"],
+        mutationFn: async (reorderedFields: FormFieldMapping[]) => {
+        const response = await fetch(`/api/fieldUpdate/?form-id=${form_id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                reorderedFields: reorderedFields,
+                }),
+            })
+            if (!response.ok) {
+                throw new Error("Failed to update field positions")
+            }
+            return response.json()
+        },
+        onSuccess: (data) => {
+            console.log("Successfully updated fields", data)
+            queryClient.invalidateQueries({ queryKey: ["form-fields"] })
+        },
+        onError: (error) => {
+            console.error("Error in updating field position", error)
+        },
+        retry: 2,
+    })
 
     function getMaxColumnId() {
         if (!data || data.formFields.length === 0) return 1;
@@ -87,21 +94,95 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
         return maxColumnId + 1;
     }
 
-    function getNextSequenceNumber(columnId: number) {
-        if(!data) return -1;
-        const fieldsInColumns = data.formFields.filter((f) => f.columnId === columnId);
-        const maxSequenceNum = fieldsInColumns.length > 0 ? Math.max(...fieldsInColumns.map(f => f.sequenceNumber),0) : 0
-        return maxSequenceNum;
+    function onDragStart(event: DragStartEvent) {
+        if(event.active.data.current?.type === "Field")
+        {
+            setActive(event.active.data.current.formField);
+            return;
+        }
     }
 
-    console.log(data);
+    function onDragEnd(event: DragEndEvent) 
+    {
+        const { active, over } = event
+        setActive(null)
+        if (!over || !data) return
+        const activeId = active.id
+        const overId = over.id
+        if (activeId === overId) return
+        const activeIndex = data.formFields.findIndex((field) => field.formFieldMapId === activeId)
+        const overIndex = data.formFields.findIndex((field) => field.formFieldMapId === overId)
+
+        if (activeIndex === -1 || overIndex === -1) return
+
+        // Create reordered array
+        const reorderedFields = arrayMove([...data.formFields], activeIndex, overIndex)
+        const fieldsByColumn = new Map<number, FormFieldMapping[]>()
+
+        reorderedFields.forEach((field) => {
+        if (!fieldsByColumn.has(field.columnId)) {
+            fieldsByColumn.set(field.columnId, [])
+        }
+        fieldsByColumn.get(field.columnId)!.push(field)
+        })
+
+        // Reassign sequence numbers within each column
+        const updatedFields: FormFieldMapping[] = []
+        fieldsByColumn.forEach((fields, columnId) => {
+        fields.forEach((field, index) => {
+            updatedFields.push({
+            ...field,
+            sequenceNumber: index + 1,
+            })
+        })
+        })
+        updatePositionMutation.mutate(updatedFields)     
+    }
     
+    function onDragOver(event: DragOverEvent) {
+        const { active, over } = event
+        if (!over || !data) return
+        const activeId = active.id
+        const overId = over.id
+        if (activeId === overId) return
+        const activeIndex = data.formFields.findIndex((field) => field.formFieldMapId === activeId)
+        const overIndex = data.formFields.findIndex((field) => field.formFieldMapId === overId)
+
+        if (activeIndex === -1 || overIndex === -1) return
+
+        const reordered = arrayMove([...data.formFields], activeIndex, overIndex)
+            queryClient.setQueryData(["form-fields"], (oldData: FormFieldsResponse | undefined) =>
+            oldData ? { ...oldData, formFields: reordered } : oldData,
+        )
+    }
     
     return(
-        <main className={cn('min-h-screen w-full justify-center gap-y-8 flex flex-col items-center px-4 lg:px-12',
+        <main className={cn('min-h-screen w-full justify-center gap-y-8 flex flex-col items-center px-0 lg:px-12',
         'overflow-x-auto bg-slate-50')}>
-            <div className="overflow-x-auto pb-4 w-full">
-                <FormFieldsRenderer formFields={data?.formFields ?? []} />
+            <div className="overflow-x-auto min-w-full">
+                <DndContext sensors={useSensors(
+                    useSensor(PointerSensor,{
+                        activationConstraint:{            
+                            distance:3
+                        },
+                    }),
+                    useSensor(MouseSensor, {
+                        activationConstraint: {
+                            distance: 10,
+                        }
+                    })
+                )} onDragStart={onDragStart}
+                   onDragOver={onDragOver}
+                   onDragEnd={onDragEnd}>
+                    <FormFieldsRenderer formFields={data?.formFields ?? []} form_id={form_id}/>
+                    <DragOverlay>
+                        {active ? (
+                        <div className="opacity-50 bg-red-300">
+                            <FieldRenderer formField={active} form_id={form_id} />
+                        </div>
+                        ) : null}
+                    </DragOverlay>
+                </DndContext>
             </div>
             <div className="flex justify-between items-center">
                 <Button onClick={()=>{addColumn.mutate({

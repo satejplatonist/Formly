@@ -7,12 +7,17 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FormFieldRendererProps } from "@/app/utils/types";
+import { useAddField } from "@/hooks/use-add-field";
+import { FormFieldMapping } from "@/db/schemas";
 
 interface RenderPreviewProps{
-    selectedType:string | null
+    selectedType:string | null,
+    formField: FormFieldMapping,
+    form_id: string
 } 
 
-export default function FormBuilder() 
+export default function FormBuilder({formField, form_id}:FormFieldRendererProps) 
 {
     const [selectedType, setSelectedType] = useState<string | null>(null);
     return(
@@ -30,13 +35,18 @@ export default function FormBuilder()
                 }
             </section>
             <section className="w-2/3 h-full flex flex-col items-start justify-start p-4 overflow-auto">
-                <RenderPreview selectedType={selectedType}/>
+                <RenderPreview  selectedType={selectedType} 
+                                formField={formField} 
+                                form_id={form_id}/>
             </section>
         </section>
     );
 }
 
-const RenderPreview = ({selectedType}:RenderPreviewProps) =>{
+const RenderPreview = ({selectedType, form_id, formField}:RenderPreviewProps) =>{
+
+    const addField = useAddField(form_id);
+
     if(!selectedType)
     {
         return(
@@ -46,6 +56,7 @@ const RenderPreview = ({selectedType}:RenderPreviewProps) =>{
             </div>
         );
     }
+
     const type = FIELD_TYPES.find((t)=>t.id === selectedType)
     if(!type) return null;
 
@@ -56,7 +67,16 @@ const RenderPreview = ({selectedType}:RenderPreviewProps) =>{
                     <section className="flex flex-col items-start justify-start w-full gap-y-4">
                         <div className="flex flex-row items-center justify-between w-full">
                         <h1 className="text-md md:text-lg lg:text-xl font-bold ">{FIELD_TYPES.at(0)?.name}</h1>
-                        <Button size={"sm"} className="md:w-20 lg:w-24 flex justify-evenly">Insert <ArrowRight/></Button>
+                        <Button size={"sm"} 
+                            className="md:w-20 lg:w-24 flex justify-evenly"
+                            onClick={()=>{addField.mutate({
+                            fieldType: "SHORT_ANSWER",
+                            columnId: formField.columnId,
+                            sequenceNum: formField.sequenceNumber + 1,
+                            data: {}
+                        })}}>
+                                Insert <ArrowRight/>
+                        </Button>
                         </div>
                         <p>{FIELD_TYPES.at(0)?.description}</p>
                     </section>
@@ -73,7 +93,16 @@ const RenderPreview = ({selectedType}:RenderPreviewProps) =>{
                     <section className="flex flex-col items-start justify-start w-full gap-y-4">
                         <div className="flex flex-row items-center justify-between w-full">
                         <h1 className="text-md md:text-lg lg:text-xl font-bold ">{FIELD_TYPES.at(1)?.name}</h1>
-                        <Button size={"sm"} className="md:w-20 lg:w-24 flex justify-evenly">Insert <ArrowRight/></Button>
+                        <Button size={"sm"} 
+                            className="md:w-20 lg:w-24 flex justify-evenly"
+                            onClick={()=>{addField.mutate({
+                            fieldType: "LONG_ANSWER",
+                            columnId: formField.columnId,
+                            sequenceNum: formField.sequenceNumber + 1,
+                            data: {}
+                        })}}>
+                                Insert <ArrowRight/>
+                        </Button>
                         </div>
                         <p>{FIELD_TYPES.at(1)?.description}</p>
                     </section>

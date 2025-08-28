@@ -28,7 +28,8 @@ export default function NavBar()
     }
 
     return(
-        <nav className="sticky top-2 bg-emerald-100 w-11/12 place-items-center h-auto px-4 py-2 rounded-2xl mx-auto">
+        <nav className="sticky top-2 bg-emerald-100 w-11/12 place-items-center h-auto px-4 
+        py-2 rounded-2xl mx-auto">
             {
                 session?
                 <Button onClick={onClickLogout}>Log out</Button>

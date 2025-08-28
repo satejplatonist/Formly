@@ -1,11 +1,13 @@
 import type { FormFieldMapping } from "@/db/schemas"
 import FieldRenderer from "./FieldRenderer"
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 interface FormFieldsRendererProps {
-  formFields: FormFieldMapping[]
+  formFields: FormFieldMapping[],
+  form_id: string
 }
 
-export default function FormFieldsRenderer({ formFields }: FormFieldsRendererProps) {
+export default function FormFieldsRenderer({ formFields, form_id }: FormFieldsRendererProps) {
   const fieldsByColumn = new Map<number, FormFieldMapping[]>()
 
   formFields.forEach((field) => {
@@ -33,26 +35,30 @@ export default function FormFieldsRenderer({ formFields }: FormFieldsRendererPro
       fieldSlots[field.sequenceNumber - 1] = field
     })
 
+    const sortableItems = fieldSlots.filter((field) => field != null).map((field) => field.formFieldMapId)
+
     return (
-      <div key={columnId} className="flex flex-col justify-center min-w-3/6">
-        {fieldSlots.map((field, index) => (
-          <div key={`${columnId}-${index + 1}`} className="">
-            {field ? (
-                <FieldRenderer fieldType={field.fieldType} />
-            ) : (
-              <div className="h-[20px]">
-                
-              </div>
-            )}
-          </div>
-        ))}
+      <div key={columnId} className="flex flex-col justify-center lg:min-w-5/12 md:min-w-4/6 pl-12 ">
+        <SortableContext items={sortableItems} strategy={verticalListSortingStrategy}>
+          {fieldSlots.map((field, index) => (
+            <div key={`${columnId}-${index + 1}`} className={`-mx-14`}>
+              {field ? (
+                  <FieldRenderer formField={field} form_id={form_id}/>
+              ) : (
+                <div className="h-[0px]">
+                  
+                </div>
+              )}
+            </div>
+          ))}
+        </SortableContext>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-row items-start gap-4">
-      {sortedColumns.map(({ columnId, fields }) => renderColumn(columnId, fields))}
+    <div className="flex flex-row items-center overflow-auto">
+        {sortedColumns.map(({ columnId, fields }) => renderColumn(columnId, fields))}
     </div>
   )
 }
