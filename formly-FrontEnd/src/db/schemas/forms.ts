@@ -9,6 +9,7 @@ export const forms = pgTable("form", {
     .references(() => user.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  shareUrl: varchar("share_url").$defaultFn(() => crypto.randomUUID()).notNull()
 })
 
 export type Form = typeof forms.$inferSelect

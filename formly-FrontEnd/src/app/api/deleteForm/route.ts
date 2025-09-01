@@ -1,5 +1,5 @@
 import { auth } from "@/app/utils/auth";
-import { and, eq, forms } from "@/db/schemas";
+import { and, eq, formFieldMappings, forms } from "@/db/schemas";
 import { db } from "@/index";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -28,6 +28,8 @@ export async function DELETE(req: NextRequest, res: NextResponse)
     }
 
     try {
+        await db.delete(formFieldMappings)
+                .where(eq(formFieldMappings.formId,formId));
         const result =  await db.delete(forms)
                         .where(and(eq(forms.userId, session.user.id), eq(forms.formId, formId)))
                         .returning({ deletedId: forms.formId });

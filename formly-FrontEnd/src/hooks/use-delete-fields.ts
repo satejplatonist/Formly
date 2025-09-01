@@ -28,7 +28,7 @@ export function useDeleteForm(form_id:string, fieldId: number, sequenceNum: numb
             },
             onSuccess: () =>{
                 toast.success("Field deleted successfully!");
-                queryClient.invalidateQueries({queryKey:['forms']})
+                queryClient.invalidateQueries({queryKey:['form-fields']})
             },
             onError: (error) =>{
                 console.log(`Error deleting the form ${error}`)

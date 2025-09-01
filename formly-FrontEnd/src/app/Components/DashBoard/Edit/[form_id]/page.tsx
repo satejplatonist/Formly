@@ -11,6 +11,9 @@ import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, M
 import { FormFieldMapping } from "@/db/schemas";
 import { arrayMove } from "@dnd-kit/sortable";
 import FieldRenderer from "@/components/helpers/FieldRenderer";
+import { ArrowRight, CircleArrowOutUpRight } from "lucide-react";
+import Link from "next/link";
+import { useGetSharedUrl } from "@/hooks/use-get-sharedurl";
 
 type FormEditParams = {
     form_id:string
@@ -26,6 +29,7 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
     const queryClient = useQueryClient();
 
     const addColumn = useAddField(form_id);
+    const {sharedUrldata, sharedError, sharedLoading} = useGetSharedUrl(form_id);
 
     const [active, setActive] = useState<FormFieldMapping | null>(null);
 
@@ -157,9 +161,22 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
     }
     
     return(
-        <main className={cn('min-h-screen w-full justify-center gap-y-8 flex flex-col items-center px-0 lg:px-12',
+        <main className={cn('min-h-screen w-full justify-center gap-y-8 flex flex-col items-center px-0 lg:px-12 py-8',
         'overflow-x-auto bg-slate-50')}>
-            <div className="overflow-x-auto min-w-full">
+            <div className="self-start ml-auto">
+                {sharedLoading && <p>Loading...</p>}
+
+                {sharedError && <p className="text-red-500">Error loading URL</p>}
+
+                {sharedUrldata?.sharedUrl && (
+                    <Link href={`/Components/DashBoard/shared/${sharedUrldata?.sharedUrl}`}>
+                        <Button variant="ghost" className="bg-emerald-600 text-neutral-50 px-8 md: mr-4">
+                            Publish <CircleArrowOutUpRight />
+                        </Button>
+                    </Link>
+                )}
+            </div>
+            <div className="overflow-x-auto min-w-full flex-grow">
                 <DndContext sensors={useSensors(
                     useSensor(PointerSensor,{
                         activationConstraint:{            
@@ -175,6 +192,9 @@ export default function EditForm({params}:{params: Promise<FormEditParams>})
                    onDragOver={onDragOver}
                    onDragEnd={onDragEnd}>
                     <FormFieldsRenderer formFields={data?.formFields ?? []} form_id={form_id}/>
+
+                    <Button className="mt-8 text-md ml-28">Submit<ArrowRight/></Button>
+                    
                     <DragOverlay>
                         {active ? (
                         <div className="opacity-50 bg-red-300">
